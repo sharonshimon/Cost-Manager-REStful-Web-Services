@@ -6,6 +6,7 @@ const costRoutes = require("./routes/costRoutes");
 
 const app = express();
 
+//Connect to MongoDB
 connectDB();
 
 app.use(express.json());
