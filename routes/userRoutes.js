@@ -1,4 +1,3 @@
-
 const express = require("express");
 const User = require("../models/userModel");
 const Cost = require("../models/costModel");
@@ -15,16 +14,23 @@ const router = express.Router();
  */
 router.get("/users/:id", async (req, res) => {
   try {
+    //Find user by ID
     const { id } = req.params;
     const user = await User.findOne({ id });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    //Calculate total costs for the user
     const totalCosts = await Cost.aggregate([
       { $match: { userid: id } },
       { $group: { _id: null, total: { $sum: "$sum" } } }
     ]);
+
+    //If no costs found, total will be 0
     const total = totalCosts[0]?.total || 0;
+
+    //Return user details and total costs
     res.json({
       first_name: user.first_name,
       last_name: user.last_name,
@@ -52,13 +58,19 @@ router.get("/users/:id", async (req, res) => {
 router.post("/users/add", async (req, res) => {
   try {
     const { id, first_name, last_name, birthday, marital_status } = req.body;
+
+    //Validate required fields
     if (!id || !first_name || !last_name || !birthday || !marital_status) {
       return res.status(400).json({ error: "All fields are required" });
     }
+
+    //Check if the user already exists
     const existingUser = await User.findOne({ id });
     if (existingUser) {
       return res.status(400).json({ error: "User already exists" });
     }
+
+    //Create and save new user
     const newUser = new User({ id, first_name, last_name, birthday, marital_status });
     await newUser.save();
     res.status(201).json(newUser);

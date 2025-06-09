@@ -3,6 +3,7 @@
  */
 const express = require("express");
 const Cost = require("../models/costModel");
+const User = require("../models/userModel");
 
 const router = express.Router();
 
@@ -23,18 +24,27 @@ router.post("/add", async (req, res) => {
   try {
     const { description, category, userid, sum, created_at } = req.body;
 
+    //Validate required fields
     if (!description || !category || !userid || !sum) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    //Validate category value
     if (
       !["food", "health", "housing", "sport", "education"].includes(category)
     ) {
       return res.status(400).json({ error: "Invalid category" });
     }
 
+    //Validate sum is a positive number
     if (typeof sum !== "number" || sum <= 0) {
       return res.status(400).json({ error: "Sum must be a positive number" });
+    }
+
+    //Before saving the cost, validate user existence
+    const userExists = await User.exists({ id: userid });
+    if (!userExists) {
+      return res.status(404).json({ error: "User does not exist" });
     }
 
     const cost = new Cost({
@@ -67,9 +77,31 @@ router.post("/add", async (req, res) => {
 router.get("/report", async (req, res) => {
   try {
     const { id, year, month } = req.query;
+
+    //Validate year and month values
+    const parsedYear = parseInt(year);
+    const parsedMonth = parseInt(month);
+
+    if (
+        isNaN(parsedYear) ||
+        isNaN(parsedMonth) ||
+        parsedMonth < 1 ||
+        parsedMonth > 12
+    ) {
+      return res.status(400).json({ error: "Invalid year or month" });
+    }
+
+    //Validate user existence
+    const userExists = await User.exists({ id });
+    if (!userExists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    //Set the date range for the given month
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
+    //Fetch costs for the user in the specified date range
     const costs = await Cost.aggregate([
       {
         $match: {
@@ -91,12 +123,14 @@ router.get("/report", async (req, res) => {
       },
     ]);
 
+    //Ensure all predefined categories are included in the response
     const categories = ["food", "health", "housing", "sport", "education"];
     const formattedCosts = categories.reduce((acc, category) => {
       acc[category] = costs.find((c) => c._id === category)?.items || [];
       return acc;
     }, {});
 
+    //Return the report
     res.json({ userid: id, year, month, costs: formattedCosts });
   } catch (error) {
     res.status(500).json({ error: error.message });
