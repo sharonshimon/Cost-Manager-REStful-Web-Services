@@ -1,4 +1,3 @@
-````markdown
 # Cost Manager RESTful Web Services
 
 **No fluff, just budgets.** This Node.js API helps you track personal costs like a hawk (minus the eye-patch).
@@ -9,35 +8,36 @@
 
 Manage your hard-earned shekels (or dollars, or whatever floats your boat) with simple CRUD endpoints. Perfect for:
 
-- Freelancers who lose receipts.
-- Students who can’t remember if they spent NIS 20 or NIS 200.
-- Anyone who’s tired of Excel nightmares.
+* Freelancers who lose receipts.
+* Students who can’t remember if they spent NIS 20 or NIS 200.
+* Anyone who’s tired of Excel nightmares.
 
 ---
 
 ## 🚀 Features
 
-- **Add Cost Item** (`POST /api/add`): Log a new expense in under a second.
-- **Get Monthly Report** (`GET /api/report?id=<user>&year=<year>&month=<month>`): Pull up all costs for a given month.
-- **Get User Details** (`GET /api/users/:id`): See user profile and total spending.
-- **Get Devs Info** (`GET /api/about`): Because we deserve some credit.
+* **Add Cost Item** (`POST /api/add`): Log a new expense in under a second.
+* **Get Monthly Report** (`GET /api/report?id=<user>&year=<year>&month=<month>`): Pull up all costs for a given month.
+* **Get User Details** (`GET /api/users/:id`): See user profile and total spending.
+* **Get Devs Info** (`GET /api/about`): Because we deserve some credit.
 
 ---
 
 ## 💎 Prerequisites
 
-- **Node.js** v16+
-- **MongoDB Atlas** account (or local MongoDB if you’re feeling brave)
+* **Node.js** v16+
+* **MongoDB Atlas** account (or local MongoDB if you’re feeling brave)
 
 ---
 
 ## 🔧 Installation
 
 1. **Clone**
+
    ```bash
    git clone <repository-url>
    cd cost-manager-restful-web-services
-````
+   ```
 
 2. **Install deps**
 
@@ -150,16 +150,4 @@ npm test
 ## 🤝 Contributing
 
 1. **Fork** the repo.
-2. Create a branch: `git checkout -b feature/cool-feature`
-3. **Code** it up.
-4. **Test** it.
-5. **PR**: Open a pull request and explain why it rocks.
-
----
-
-## 📜 License
-
-MIT. Do whatever, just don’t blame us if you overspend.
-
-```
-```
+2. Create a branch: \`git checkout -b feature/cool-f
