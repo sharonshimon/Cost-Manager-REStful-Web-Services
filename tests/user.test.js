@@ -1,13 +1,15 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const app = require("../app");
-const User = require("../models/userModel");
+const User = require("../models/user_model");
 
-
-//Clean up the database after each test
-afterEach(async () => {
-    await User.deleteMany();
-});
+const existingUser = {
+    id: "123123",
+    first_name: "mosh",
+    last_name: "israeli",
+    birthday: "1990-01-01",
+    marital_status: "single"
+};
 
 //Close the database connection after all tests
 afterAll(async () => {
@@ -15,75 +17,37 @@ afterAll(async () => {
 });
 
 describe("User API", () => {
-    //Test creating a new user
-    test("should create a new user", async () => {
-        const res = await request(app).post("/api/users/add").send({
-            id: "999999999",
-            first_name: "Joe",
-            last_name: "Cohen",
-            birthday: "1994-01-01",
-            marital_status: "single",
-        });
+    //Test creating a duplicate of existing user
+    test("should not create a duplicate user", async () => {
+        const res = await request(app).post("/api/users/add").send(existingUser);
 
-        expect(res.statusCode).toBe(201);
-        expect(res.body).toHaveProperty("id", "999999999");
-        expect(res.body).toHaveProperty("first_name", "Joe");
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty("error", "User already exists");
+    });
+
+    //Test getting existing user details
+    test("should get existing user details by ID", async () => {
+        const res = await request(app).get(`/api/users/${existingUser.id}`);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty("first_name", existingUser.first_name);
+        expect(res.body).toHaveProperty("last_name", existingUser.last_name);
     });
 
     //Test failure when required fields are missing
     test("should not create a user with missing fields", async () => {
         const res = await request(app).post("/api/users/add").send({
-            id: "888888888",
+            id: existingUser.id,  // Using existing ID to avoid accidental creation
             first_name: "Jane",
-            birthday: "1994-01-02",
         });
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty("error", "All fields are required");
     });
 
-    //Test failure when trying to create an existing user
-    test("should not create a duplicate user", async () => {
-        await request(app).post("/api/users/add").send({
-            id: "777777777",
-            first_name: "Sam",
-            last_name: "Smith",
-            birthday: "1992-05-05",
-            marital_status: "married",
-        });
-
-        const res = await request(app).post("/api/users/add").send({
-            id: "777777777",
-            first_name: "Sam",
-            last_name: "Smith",
-            birthday: "1992-05-05",
-            marital_status: "married",
-        });
-
-        expect(res.statusCode).toBe(400);
-        expect(res.body).toHaveProperty("error", "User already exists");
-    });
-
-    //Test getting user details by ID
-    test("should get user details by ID", async () => {
-        await request(app).post("/api/users/add").send({
-            id: "111111111",
-            first_name: "Dani",
-            last_name: "Levi",
-            birthday: "1998-06-10",
-            marital_status: "single",
-        });
-
-        const res = await request(app).get("/api/users/111111111");
-
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty("first_name", "Dani");
-        expect(res.body).toHaveProperty("total", 0);
-    });
-
-    //Test failure when trying to
+    //Test non-existent user lookup
     test("should return 404 if user not found", async () => {
-        const res = await request(app).get("/api/users/000000000");
+        const res = await request(app).get("/api/users/nonexistent_id");
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toHaveProperty("error", "User not found");

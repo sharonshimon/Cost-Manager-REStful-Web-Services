@@ -2,8 +2,8 @@
  * Router for handling cost-related operations.
  */
 const express = require("express");
-const Cost = require("../models/costModel");
-const User = require("../models/userModel");
+const Cost = require("../models/cost_model");
+const User = require("../models/user_model");
 
 const router = express.Router();
 
