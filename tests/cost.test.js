@@ -9,15 +9,15 @@ describe("Cost Routes", () => {
 
   it("should add a new cost", async () => {
     const response = await request(app).post("/api/add").send({
-      description: "Groceries",
-      category: "food",
+      description: "Tables",
+      category: "housing",
       userid: "123123",
-      sum: 100,
+      sum: 1500,
     });
 
     expect(response.statusCode).toBe(201);
-    expect(response.body).toHaveProperty("description", "Groceries");
-    expect(response.body).toHaveProperty("sum", 100);
+    expect(response.body).toHaveProperty("description", "Tables");
+    expect(response.body).toHaveProperty("sum", 1500);
   });
 
   afterAll(async () => {
